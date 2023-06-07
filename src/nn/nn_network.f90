@@ -11,6 +11,8 @@ module nn_network
         integer :: n
         contains
 
+            procedure :: set_parameters
+            procedure :: get_num_parameters
             procedure, private :: forward_i
             procedure, private :: predict_i
             generic :: forward => forward_i
@@ -37,6 +39,18 @@ module nn_network
             class(network), intent(inout) :: self
             real(dp), intent(in) :: input(:)
             real(dp), allocatable :: output(:)
+        end function
+    end interface
+
+    interface
+        module subroutine set_parameters(self, params)
+            class(network), intent(inout) :: self
+            real(dp), intent(in) :: params(:)
+        end subroutine
+
+        module function get_num_parameters(self) result(params)
+            class(network), intent(inout) :: self
+            integer :: params
         end function
     end interface
 
@@ -71,5 +85,28 @@ module nn_network
         real(dp), allocatable :: output(:)
         call self % forward(input)
         output = self % layers(self % n) % output
+    end function
+
+    module subroutine set_parameters(self, params)
+        class(network), intent(inout) :: self
+        real(dp), intent(in) :: params(:)
+        integer :: nstart, nend, i
+
+        nstart = 1
+        do i=1, self % n
+            nend = nstart + self % layers(i) % get_num_parameters() - 1
+            call self % layers(i) % set_parameters(params(nstart:nend))
+            nstart = nend + 1
+        end do
+    end subroutine
+
+    module function get_num_parameters(self) result(num)
+        class(network), intent(inout) :: self
+        integer :: num, i
+
+        num = 0
+        do i=1, self % n
+            num = num + self % layers(i) % get_num_parameters()
+        end do
     end function
 end module
