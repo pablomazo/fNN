@@ -48,6 +48,7 @@ module nn_network
         integer :: i
 
         net % layers = layers
+        net % n = size(layers)
 
         do i=1,size(layers)
             call net % layers(i) % init()
@@ -58,7 +59,6 @@ module nn_network
     class(network), intent(inout) :: self
     real(dp), intent(in) :: input(:)
     integer :: n, i
-    self % n = size(self % layers)
     call self % layers(1) % forward(input)
     do i=2, self % n
         call self % layers(i) % forward(self % layers(i-1) % output)
