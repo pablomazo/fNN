@@ -11,7 +11,7 @@ module nn_layers
                                  output(:) ! output = activation(z)
         contains
             procedure :: forward
-            !procedure :: set_parameters
+            procedure :: set_parameters
             procedure :: init
     end type
 
@@ -64,5 +64,12 @@ module nn_layers
         end do
         self % z = self % z + self % b
         self%output = self % activation % eval(self % z)
+    end subroutine
+
+    subroutine set_parameters(self, w, b)
+        class(dense_layer), intent(inout) :: self
+        real(dp), intent(in) :: w(:), b(:)
+        self % w = reshape(w, [self % input_size, self % output_size])
+        self % b = b
     end subroutine
 end module
