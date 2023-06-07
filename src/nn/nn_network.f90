@@ -56,20 +56,20 @@ module nn_network
     end function
 
     module subroutine forward_i(self, input)
-    class(network), intent(inout) :: self
-    real(dp), intent(in) :: input(:)
-    integer :: n, i
-    call self % layers(1) % forward(input)
-    do i=2, self % n
-        call self % layers(i) % forward(self % layers(i-1) % output)
-    end do
+        class(network), intent(inout) :: self
+        real(dp), intent(in) :: input(:)
+        integer :: n, i
+        call self % layers(1) % forward(input)
+        do i=2, self % n
+            call self % layers(i) % forward(self % layers(i-1) % output)
+        end do
     end subroutine
 
     module function predict_i(self, input) result(output)
-    class(network), intent(inout) :: self
-    real(dp), intent(in) :: input(:)
-    real(dp), allocatable :: output(:)
-    call self % forward(input)
-    output = self % layers(self % n) % output
+        class(network), intent(inout) :: self
+        real(dp), intent(in) :: input(:)
+        real(dp), allocatable :: output(:)
+        call self % forward(input)
+        output = self % layers(self % n) % output
     end function
 end module
