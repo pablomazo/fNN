@@ -12,6 +12,7 @@ module nn_layers
         contains
             procedure :: forward
             procedure :: set_parameters
+            procedure :: get_num_params
             procedure :: init
     end type
 
@@ -72,4 +73,10 @@ module nn_layers
         self % w = reshape(w, [self % input_size, self % output_size])
         self % b = b
     end subroutine
+
+    module function get_num_params(self) result(params)
+        class(dense_layer), intent(inout) :: self
+        integer :: params
+        params = self % input_size * self % output_size + self % output_size
+    end function
 end module
