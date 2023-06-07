@@ -12,7 +12,7 @@ module nn_layers
         contains
             procedure :: forward
             procedure :: set_parameters
-            procedure :: get_num_params
+            procedure :: get_num_parameters
             procedure :: init
     end type
 
@@ -21,6 +21,24 @@ module nn_layers
             integer, intent(in) :: input_size, output_size
             class(activation_func), intent(in), optional :: activation
             type(dense_layer) :: layer
+        end function
+    end interface
+
+    interface
+        module subroutine forward(self, input)
+            use nn_types, only: dp
+            class(dense_layer), intent(inout) :: self
+            real(dp), intent(in) :: input(:)
+        end subroutine
+
+        module subroutine set_parameters(self, params)
+            class(dense_layer), intent(inout) :: self
+            real(dp), intent(in) :: params(:)
+        end subroutine
+
+        module function get_num_parameters(self) result(params)
+            class(dense_layer), intent(inout) :: self
+            integer :: params
         end function
     end interface
 
@@ -40,7 +58,7 @@ module nn_layers
         allocate( layer % activation, source = activation_tmp )
 
     end function
-    subroutine  init(self)
+    module subroutine  init(self)
         class(dense_layer), intent(inout) :: self
         allocate(self % w(self % input_size, self % output_size))
         call random_number(self % w)
@@ -52,7 +70,7 @@ module nn_layers
         self % output = 0_dp
     end subroutine
 
-    subroutine forward(self, inp)
+    module subroutine forward(self, inp)
         class(dense_layer), intent(inout) :: self
         real(dp), intent(in) :: inp(:)
         integer :: i, j
@@ -67,14 +85,16 @@ module nn_layers
         self%output = self % activation % eval(self % z)
     end subroutine
 
-    subroutine set_parameters(self, w, b)
+    module subroutine set_parameters(self, params)
         class(dense_layer), intent(inout) :: self
-        real(dp), intent(in) :: w(:), b(:)
-        self % w = reshape(w, [self % input_size, self % output_size])
-        self % b = b
+        real(dp), intent(in) :: params(:)
+        integer :: iw
+        iw = self % input_size * self % output_size
+        self % w = reshape(params(:iw), [self % input_size, self % output_size])
+        self % b = params(iw+1:)
     end subroutine
 
-    module function get_num_params(self) result(params)
+    module function get_num_parameters(self) result(params)
         class(dense_layer), intent(inout) :: self
         integer :: params
         params = self % input_size * self % output_size + self % output_size
