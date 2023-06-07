@@ -1,6 +1,6 @@
 ! Heavily inspired by https://github.com/modern-fortran/neural-fortran/tree/main
 module nn_activations
-    use constants, only: dp
+    use nn_types, only: dp
     implicit none
 
     public :: activation_func
@@ -18,7 +18,7 @@ module nn_activations
 
     abstract interface
         pure function eval_i(self, x) result(output)
-            use constants, only: dp
+            use nn_types, only: dp
             import :: activation_func
             class(activation_func), intent(in) :: self
             real(dp), intent(in) :: x(:)
@@ -26,7 +26,7 @@ module nn_activations
         end function
         
         pure function eval_prime_i(self, x) result(output)
-            use constants, only: dp
+            use nn_types, only: dp
             import :: activation_func
             class(activation_func), intent(in) :: self
             real(dp), intent(in) :: x(:)

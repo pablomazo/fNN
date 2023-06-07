@@ -1,6 +1,6 @@
 ! Heavily inspired by https://github.com/modern-fortran/neural-fortran/tree/main
 module nn_layers
-    use constants, only: dp
+    use nn_types, only: dp
     use nn_activations, only: activation_func, linear
     implicit none
     type :: dense_layer

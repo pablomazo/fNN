@@ -1,6 +1,6 @@
 ! Heavily inspired by https://github.com/modern-fortran/neural-fortran/tree/main
 module nn_network
-    use constants, only: dp
+    use nn_types, only: dp
     use nn_layers, only: dense_layer
     use nn_activations, only: activation_func
     implicit none
@@ -26,7 +26,7 @@ module nn_network
 
     interface forward
         module subroutine forward_i(self, input)
-            use constants, only: dp
+            use nn_types, only: dp
             class(network), intent(inout) :: self
             real(dp), intent(in) :: input(:)
         end subroutine
