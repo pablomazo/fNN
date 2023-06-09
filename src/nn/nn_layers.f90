@@ -75,13 +75,7 @@ module nn_layers
         real(dp), intent(in) :: inp(:)
         integer :: i, j
 
-        self % z = 0_dp
-        do i=1, self % input_size
-            do j=1, self % output_size
-                self % z(j) = self % z(j) + self % w(i,j) * inp(i)
-            end do
-        end do
-        self % z = self % z + self % b
+        self % z = matmul(inp, self % w) + self % b
         self%output = self % activation % eval(self % z)
     end subroutine
 
