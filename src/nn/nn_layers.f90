@@ -109,9 +109,7 @@ module nn_layers
         integer :: i
         if (.not. allocated(self % grad)) allocate(self % grad(self % input_size, size(grad,2)))
         act = self % activation % eval_prime(self % z)
-        do i=1, self % input_size
-            aux(i,:) = act * self % w(i,:)
-        end do
+        aux = self % w * spread(act, 1, self % input_size)
         self % grad = matmul(aux, grad)
     end subroutine
 end module
