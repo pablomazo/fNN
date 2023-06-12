@@ -53,13 +53,10 @@ module nn_activations
         real(dp), intent(in) :: x(:)
         real(dp) :: output(size(x))
 
-        output = self % alpha * (exp(x/self %alpha) - 1)
-        where (output > 0._dp)
-            output = 0._dp
-        end where
-
-        where (x > 0._dp)
-            output = output + x
+        where (x >= 0._dp)
+            output = x
+        else where
+            output = self % alpha * (exp(x/self %alpha) - 1)
         end where
     end function
     pure function eval_base_prime_CELU(self, x) result(output)
