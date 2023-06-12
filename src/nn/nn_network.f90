@@ -15,8 +15,10 @@ module nn_network
             procedure :: get_num_parameters
             procedure, private :: forward_i
             procedure, private :: predict_i
+            procedure, private :: gradient_i
             generic :: forward => forward_i
             generic :: predict => predict_i
+            generic :: gradient => gradient_i
     end type
 
     interface network
@@ -40,6 +42,12 @@ module nn_network
             real(dp), intent(in) :: input(:)
             real(dp), allocatable :: output(:)
         end function
+    end interface
+
+    interface gradient
+        module subroutine gradient_i(self)
+            class(network), intent(inout) :: self
+        end subroutine
     end interface
 
     interface
@@ -109,4 +117,15 @@ module nn_network
             num = num + self % layers(i) % get_num_parameters()
         end do
     end function
+
+    module subroutine gradient_i(self)
+        class(network), intent(inout) :: self
+        real(dp) :: dum(self % layers(self % n) % output_size, self % layers(self % n) % output_size)
+        integer :: ilayer
+        dum = 1.0_dp
+        call self % layers(self % n) % gradient(dum)
+        do ilayer=self % n-1,1,-1
+            call self % layers(ilayer) % gradient(self % layers(ilayer+1) % grad)
+        end do
+    end subroutine
 end module

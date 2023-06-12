@@ -8,12 +8,14 @@ module nn_layers
         class(activation_func), allocatable :: activation
         real(dp), allocatable :: w(:,:), b(:), &
                                  z(:), & ! z = w * x + b
-                                 output(:) ! output = activation(z)
+                                 output(:), & ! output = activation(z)
+                                 grad(:,:) ! grad = d output / d input
         contains
             procedure :: forward
             procedure :: set_parameters
             procedure :: get_num_parameters
             procedure :: init
+            procedure :: gradient
     end type
 
     interface dense_layer
@@ -40,6 +42,12 @@ module nn_layers
             class(dense_layer), intent(inout) :: self
             integer :: params
         end function
+
+        module subroutine gradient(self, grad)
+            use nn_types, only: dp
+            class(dense_layer), intent(inout) :: self
+            real(dp), intent(in) :: grad(:,:)
+        end subroutine
     end interface
 
     contains
@@ -93,4 +101,17 @@ module nn_layers
         integer :: params
         params = self % input_size * self % output_size + self % output_size
     end function
+
+    module subroutine gradient(self, grad)
+        class(dense_layer), intent(inout) :: self
+        real(dp), intent(in) :: grad(:,:)
+        real(dp) :: aux(self % input_size, self % output_size), act(self % output_size)
+        integer :: i
+        if (.not. allocated(self % grad)) allocate(self % grad(self % input_size, size(grad,2)))
+        act = self % activation % eval_prime(self % z)
+        do i=1, self % input_size
+            aux(i,:) = act * self % w(i,:)
+        end do
+        self % grad = matmul(aux, grad)
+    end subroutine
 end module
