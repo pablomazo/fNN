@@ -64,7 +64,11 @@ module nn_activations
         real(dp), intent(in) :: x(:)
         real(dp) :: output(size(x))
 
-        output = 1._dp ! TODO: implement CELU prime
+        where (x >= 0._dp)
+            output = 1._dp
+        else where
+            output = exp(x/self %alpha)
+        end where
     end function
 
     pure function eval_base_linear(self, x) result(output)
