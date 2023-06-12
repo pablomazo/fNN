@@ -105,11 +105,17 @@ module nn_layers
     module subroutine gradient(self, grad)
         class(dense_layer), intent(inout) :: self
         real(dp), intent(in) :: grad(:,:)
-        real(dp) :: aux(self % input_size, self % output_size), act(self % output_size)
-        integer :: i
-        if (.not. allocated(self % grad)) allocate(self % grad(self % input_size, size(grad,2)))
+        real(dp) :: aux(self % input_size, self % output_size), act(self % output_size), grad_1(self % output_size)
+        integer :: s
+        s = size(grad,2)
+        if (.not. allocated(self % grad)) allocate(self % grad(self % input_size, s))
         act = self % activation % eval_prime(self % z)
         aux = self % w * spread(act, 1, self % input_size)
+        if (s == 1) then
+            grad_1 = grad(:,1)
+            self % grad(:,1) = matmul(aux, grad_1)
+        else
         self % grad = matmul(aux, grad)
+        end if
     end subroutine
 end module
