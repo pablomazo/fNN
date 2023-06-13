@@ -9,7 +9,7 @@ module nn_layers
         real(dp), allocatable :: w(:,:), b(:), &
                                  z(:), & ! z = w * x + b
                                  output(:), & ! output = activation(z)
-                                 grad(:,:) ! grad = d output / d input
+                                 grad(:) ! grad = d output / d input
         contains
             procedure :: forward
             procedure :: set_parameters
@@ -46,7 +46,7 @@ module nn_layers
         module subroutine gradient(self, grad)
             use nn_types, only: dp
             class(dense_layer), intent(inout) :: self
-            real(dp), intent(in) :: grad(:,:)
+            real(dp), intent(in) :: grad(:)
         end subroutine
     end interface
 
@@ -76,6 +76,8 @@ module nn_layers
         self % z = 0_dp
         allocate(self % output(self % output_size))
         self % output = 0_dp
+        allocate (self % grad(self % input_size))
+        self % grad = 0_dp
     end subroutine
 
     module subroutine forward(self, inp)
@@ -104,18 +106,7 @@ module nn_layers
 
     module subroutine gradient(self, grad)
         class(dense_layer), intent(inout) :: self
-        real(dp), intent(in) :: grad(:,:)
-        real(dp) :: aux(self % input_size, self % output_size), vec(self % output_size)
-        integer :: s
-        s = size(grad,2)
-        if (.not. allocated(self % grad)) allocate(self % grad(self % input_size, s))
-        vec = self % activation % eval_prime(self % z)
-        aux = self % w * spread(vec, 1, self % input_size)
-        if (s == 1) then
-            vec = grad(:,1)
-            self % grad(:,1) = matmul(aux, vec)
-        else
-        self % grad = matmul(aux, grad)
-        end if
+        real(dp), intent(in) :: grad(:)
+        self % grad = matmul(self % w, grad * self % activation % eval_prime(self % z))
     end subroutine
 end module

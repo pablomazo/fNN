@@ -120,10 +120,8 @@ module nn_network
 
     module subroutine gradient_i(self)
         class(network), intent(inout) :: self
-        real(dp) :: dum(self % layers(self % n) % output_size, self % layers(self % n) % output_size)
         integer :: ilayer
-        dum = 1.0_dp
-        call self % layers(self % n) % gradient(dum)
+        call self % layers(self % n) % gradient([1d0])
         do ilayer=self % n-1,1,-1
             call self % layers(ilayer) % gradient(self % layers(ilayer+1) % grad)
         end do
