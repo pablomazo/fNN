@@ -4,8 +4,9 @@ module nn_activations
     implicit none
 
     public :: activation_func
-    public :: CELU
-    public :: linear
+    public :: CELU, &
+        linear, &
+        Sigmoid
 
     type, abstract :: activation_func
         contains
@@ -47,6 +48,11 @@ module nn_activations
             procedure :: eval_base_prime => eval_base_prime_linear
     end type
 
+    type, extends(activation_func) :: Sigmoid
+        contains
+            procedure :: eval_base => eval_base_sigmoid
+            procedure :: eval_base_prime => eval_base_prime_sigmoid
+    end type
     contains
     pure function eval_base_CELU(self, x) result(output)
         class(CELU), intent(in) :: self
@@ -84,5 +90,21 @@ module nn_activations
         real(dp) :: output(size(x))
 
         output = 1._dp
+    end function
+
+    pure function eval_base_sigmoid(self, x) result(output)
+        class(Sigmoid), intent(in) :: self
+        real(dp), intent(in) :: x(:)
+        real(dp) :: output(size(x))
+
+        output = 1._dp / (1._dp + exp(-x))
+    end function
+    pure function eval_base_prime_sigmoid(self, x) result(output)
+        class(Sigmoid), intent(in) :: self
+        real(dp), intent(in) :: x(:)
+        real(dp) :: output(size(x)), e(size(x))
+
+        e = exp(-x)
+        output = e / (1._dp + e)**2
     end function
 end module
