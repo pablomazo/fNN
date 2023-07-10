@@ -6,7 +6,8 @@ module nn_activations
     public :: activation_func
     public :: CELU, &
         linear, &
-        Sigmoid
+        Sigmoid, &
+        Tanhf
 
     type, abstract :: activation_func
         contains
@@ -53,6 +54,12 @@ module nn_activations
             procedure :: eval_base => eval_base_sigmoid
             procedure :: eval_base_prime => eval_base_prime_sigmoid
     end type
+
+    type, extends(activation_func) :: Tanhf
+        contains
+            procedure :: eval_base => eval_base_tanh
+            procedure :: eval_base_prime => eval_base_prime_tanh
+    end type
     contains
     pure function eval_base_CELU(self, x) result(output)
         class(CELU), intent(in) :: self
@@ -84,6 +91,7 @@ module nn_activations
 
         output = x
     end function
+
     pure function eval_base_prime_linear(self, x) result(output)
         class(linear), intent(in) :: self
         real(dp), intent(in) :: x(:)
@@ -99,6 +107,7 @@ module nn_activations
 
         output = 1._dp / (1._dp + exp(-x))
     end function
+
     pure function eval_base_prime_sigmoid(self, x) result(output)
         class(Sigmoid), intent(in) :: self
         real(dp), intent(in) :: x(:)
@@ -106,5 +115,21 @@ module nn_activations
 
         e = exp(-x)
         output = e / (1._dp + e)**2
+    end function
+
+    pure function eval_base_tanh(self, x) result(output)
+        class(Tanhf), intent(in) :: self
+        real(dp), intent(in) :: x(:)
+        real(dp) :: output(size(x))
+
+        output = tanh(x)
+    end function
+
+    pure function eval_base_prime_tanh(self, x) result(output)
+        class(Tanhf), intent(in) :: self
+        real(dp), intent(in) :: x(:)
+        real(dp) :: output(size(x)), e(size(x))
+
+        output = 1._dp - tanh(x)**2
     end function
 end module
